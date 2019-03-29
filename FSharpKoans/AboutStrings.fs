@@ -72,7 +72,7 @@ module ``13: String manipulation`` =
     [<Test>]
     let ``11 String formatting: %f format specifier`` () =
         let result = sprintf "Multiply by %.6f, then triple" 2.26
-        let condensed = sprintf "Multiply by %f, then triple" 2.26
+        let condensed = sprintf "Multiply by %.2f, then triple" 2.26
         let rounded = sprintf "Multiply by %.1f, then triple" 2.26
         result |> should equal "Multiply by 2.260000, then triple"
         condensed |> should equal "Multiply by 2.26, then triple"
@@ -88,7 +88,7 @@ module ``13: String manipulation`` =
    // double-up a % to get a % in.
     [<Test>]
     let ``13 String formatting: Putting a '%' sign in`` () =
-        let result = sprintf "I scored '%f' on the test" 94.43
+        let result = sprintf "I scored %.2f on the test" 94.43
         result |> should equal "I scored 94.43% on the test"
 
     [<Test>]
