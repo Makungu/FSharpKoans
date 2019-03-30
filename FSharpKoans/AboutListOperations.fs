@@ -34,6 +34,7 @@ module ``14: List operations are so easy, you could make them yourself!`` =
              |[] -> res
              |head::rest ->  len rest res+1
             len xs 0
+
         length [9;8;7] |> should equal 3
         length [] |> should equal 0
         length ["Le Comte de Monte-Cristo"] |> should equal 1
@@ -47,11 +48,13 @@ module ``14: List operations are so easy, you could make them yourself!`` =
     [<Test>]
     let ``03 Reversing a list, the hard way`` () =
         let rev (xs : 'a list) : 'a list =
-            let rec vers xs =
+            let rec vers xs ls =
              match xs with 
-             |[] -> []
-             |head::rest ->  vers rest + head
-            vers xs   
+             |[] -> ls
+             |head::tail ->  vers tail ([head]@ls)
+            let ls =[]
+            vers xs ls 
+            
         rev [9;8;7] |> should equal [7;8;9]
         rev [] |> should equal []
         rev [0] |> should equal [0]
@@ -68,7 +71,12 @@ module ``14: List operations are so easy, you could make them yourself!`` =
     [<Test>]
     let ``05 Fixed-function mapping, the hard way (part 1).`` () =
         let map (xs : int list) : int list =
-            __ // write a function which adds 1 to each element
+            let rec mp xs ls =
+             match xs with 
+             |[] -> ls
+             |head::tail ->  mp tail (ls@[head + 1])
+            mp xs []  
+
         map [1; 2; 3; 4] |> should equal [2; 3; 4; 5]
         map [9; 8; 7; 6] |> should equal [10; 9; 8; 7]
         map [15; 2; 7] |> should equal [16; 3; 8]
@@ -78,7 +86,12 @@ module ``14: List operations are so easy, you could make them yourself!`` =
     [<Test>]
     let ``06 Fixed-function mapping, the hard way (part 2).`` () =
         let map (xs : int list) : int list =
-            __ // write a function which doubles each element
+            let rec mp xs ls =
+             match xs with 
+             |[] -> ls
+             |head::tail ->  mp tail (ls@[head * 2])
+            mp xs []
+
         map [1; 2; 3; 4] |> should equal [2; 4; 6; 8]
         map [9; 8; 7; 6] |> should equal [18; 16; 14; 12]
         map [15; 2; 7] |> should equal [30; 4; 14]
@@ -97,7 +110,12 @@ module ``14: List operations are so easy, you could make them yourself!`` =
     [<Test>]
     let ``07 Specified-function mapping, the hard way`` () =
         let map (f : 'a -> 'b) (xs : 'a list) : 'b list =
-            __ // write a map which applies f to each element
+            let rec mp xs ls =
+             match xs with 
+             |[] -> ls
+             |head::tail ->  mp tail (ls@[f head])
+            mp xs []
+
         map (fun x -> x+1) [9;8;7] |> should equal [10;9;8]
         map ((*) 2) [9;8;7] |> should equal [18;16;14]
         map (fun x -> sprintf "%.2f wut?" x)  [9.3; 1.22] |> should equal ["9.30 wut?"; "1.22 wut?"]
@@ -112,7 +130,14 @@ module ``14: List operations are so easy, you could make them yourself!`` =
     [<Test>]
     let ``09 Specified-function filtering, the hard way`` () =
         let filter (f : 'a -> bool) (xs : 'a list) : 'a list =
-            __ // write a function which filters based on the specified criteria
+            let rec fil xs ls =
+             match xs with 
+             |[] -> ls
+             |head::tail -> match f head  with
+                            | true -> fil tail (ls@[head])
+                            | _ -> fil tail (ls@[])
+            fil xs []
+
         filter (fun x -> x > 19) [9; 5; 23; 66; 4] |> should equal [23; 66]
         filter (fun x -> String.length x = 4) ["moo"; "woof"; "yip"; "nyan"; "meow"]
         |> should equal ["woof"; "nyan"; "meow"]
@@ -121,15 +146,22 @@ module ``14: List operations are so easy, you could make them yourself!`` =
     // Hint: https://msdn.microsoft.com/en-us/library/ee370294.aspx
     [<Test>]
     let ``10 Specified-function filtering, the easy way`` () =
-        __ (fun x -> x > 19) [9; 5; 23; 66; 4] |> should equal [23; 66]
-        __ (fun x -> String.length x = 4) ["moo"; "woof"; "yip"; "nyan"; "meow"]
+        List.filter (fun x -> x > 19) [9; 5; 23; 66; 4] |> should equal [23; 66]
+        List.filter (fun x -> String.length x = 4) ["moo"; "woof"; "yip"; "nyan"; "meow"]
         |> should equal ["woof"; "nyan"; "meow"]
-        __ (fun (a,b) -> a*b >= 14) [9,3; 4,2; 4,5] |> should equal [9,3; 4,5]
+        List.filter (fun (a,b) -> a*b >= 14) [9,3; 4,2; 4,5] |> should equal [9,3; 4,5]
 
     [<Test>]
     let ``11 Fixed-function filtering, the hard way`` () =
         let filter (xs : int list) : int list =
-            __ // write a function to filter for odd elements only.
+            let rec fil xs ls =
+             match xs with 
+             |[] -> ls
+             |head::tail -> match head%2 <> 0 with
+                            | true -> fil tail (ls@[head])
+                            | _ -> fil tail (ls@[])
+            fil xs []
+
         filter [1; 2; 3; 4] |> should equal [1; 3]
         filter [10; 9; 8; 7] |> should equal [9; 7]
         filter [15; 2; 7] |> should equal [15; 7]
@@ -147,7 +179,14 @@ module ``14: List operations are so easy, you could make them yourself!`` =
     [<Test>]
     let ``12 Specified-function filtering, the hard way`` () =
         let filter (f : 'a -> bool) (xs : 'a list) : 'a list =
-            __ // write a function which filters based on the specified criteria
+            let rec fil xs ls =
+             match xs with 
+             |[] -> ls
+             |head::tail -> match f head  with
+                            | true -> fil tail (ls@[head])
+                            | _ -> fil tail (ls@[])
+            fil xs [] 
+
         filter (fun x -> x > 19) [9; 5; 23; 66; 4] |> should equal [23; 66]
         filter (fun x -> String.length x = 4) ["moo"; "woof"; "yip"; "nyan"; "meow"]
         |> should equal ["woof"; "nyan"; "meow"]
@@ -156,10 +195,10 @@ module ``14: List operations are so easy, you could make them yourself!`` =
     // Hint: https://msdn.microsoft.com/en-us/library/ee370294.aspx
     [<Test>]
     let ``13 Specified-function filtering, the easy way`` () =
-        __ (fun x -> x > 19) [9; 5; 23; 66; 4] |> should equal [23; 66]
-        __ (fun x -> String.length x = 4) ["moo"; "woof"; "yip"; "nyan"; "meow"]
+        List.filter (fun x -> x > 19) [9; 5; 23; 66; 4] |> should equal [23; 66]
+        List.filter (fun x -> String.length x = 4) ["moo"; "woof"; "yip"; "nyan"; "meow"]
         |> should equal ["woof"; "nyan"; "meow"]
-        __ (fun (a,b) -> a*b >= 14) [9,3; 4,2; 4,5] |> should equal [9,3; 4,5]
+        List.filter (fun (a,b) -> a*b >= 14) [9,3; 4,2; 4,5] |> should equal [9,3; 4,5]
 
 (*
 A 'fold' starts from a specified state, and generates more states depending
